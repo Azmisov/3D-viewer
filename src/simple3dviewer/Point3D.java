@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 
 /**
  * Holds information for a 3D vertex
- * @author isaac, jared, mark, dallin
+ * @author isaac, jared, mark, dallen
  */
 public class Point3D {
 	private static enum ProjectionMode{
@@ -29,10 +29,16 @@ public class Point3D {
 	 */
 	public void rotate(double thetaX, double thetaY, double thetaZ){
 		//TODO, perform rotation transformation
+		//This gets called by Object3D.rotate, so if you want
+		//you can change how this method works. Maybe you want to
+		//pass in a transformation matrix here, and generate the matrix
+		//once in Object3D
 		project();
 	}
 	public void scale(double scale){
 		//TODO, perform scale transformation
+		//You can also modify Object3D.scale, since that
+		//is what calls this method
 		project();
 	}
 	
