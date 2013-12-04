@@ -10,7 +10,7 @@ public class Point3D {
 	private static enum ProjectionMode{
 		PERSPECTIVE, ORTHOGRAPHIC
 	};
-	private static ProjectionMode mode;
+	private static ProjectionMode mode = ProjectionMode.ORTHOGRAPHIC;
 	public double x, y, z;
 	public Point2D.Double projection;
 	
@@ -18,6 +18,7 @@ public class Point3D {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		project();
 	}
 	
 	//TRANSFORMATIONS
@@ -54,7 +55,7 @@ public class Point3D {
 	}
 	private void projectOrthographic(){
 		//TODO, dummy code
-		projection = new Point2D.Double(y,z);
+		projection = new Point2D.Double(x,y);
 	}
 	private void projectPerspective(){
 		//TODO, dummy code

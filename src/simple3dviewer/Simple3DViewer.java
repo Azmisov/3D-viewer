@@ -3,7 +3,6 @@ package simple3dviewer;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  * 3D object viewer
@@ -18,6 +17,8 @@ public class Simple3DViewer extends JFrame{
 	public Simple3DViewer(){
 		setTitle("Simple 3D Viewer");
 		setSize(new Dimension(winSize, winSize));
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 		Renderer viewer = new Renderer();
 		add(viewer);
 		//Initialize starting object

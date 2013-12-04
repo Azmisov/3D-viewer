@@ -43,6 +43,9 @@ public class Renderer extends JPanel{
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		
+		//Window dimensions
+		int winx = getWidth()/2, winy = getHeight()/2;
+		
 		//Enable antialiasing
 		g2.setRenderingHints(antialiasing);
 		
@@ -51,17 +54,21 @@ public class Renderer extends JPanel{
 		//First, perform depth sort on edges
 		obj.depthSort();
 		//Loop through all edges and draw lines
+		int e0x, e0y, e1x, e1y;		
 		for (Point3D[] edge: obj.edges){
+			//Map the object coordinates to screen coordinates
+			e0x = (int) ((edge[0].projection.x * pixelsPerUnit) + winx);
+			e0y = (int) ((edge[0].projection.y * pixelsPerUnit) + winy);
+			e1x = (int) ((edge[1].projection.x * pixelsPerUnit) + winx);
+			e1y = (int) ((edge[1].projection.y * pixelsPerUnit) + winy);
+			
 			//Unfortunately, Java2D can't do gradient lines, so we'll
 			//fake it by modifying the full line's brightness
-			float brightness = (float) (1 - (edge[0].z + edge[1].z)/2.0);
-			g2.setColor(new Color(Color.HSBtoRGB(8f, 1f, brightness)));
-			g2.drawLine(
-				(int) edge[0].projection.x,
-				(int) edge[0].projection.y,
-				(int) edge[1].projection.x,
-				(int) edge[1].projection.y
-			);
+			float brightness = (float) (((edge[0].z + edge[1].z)/2.0 + 1)/2.0);
+			System.out.println("brightness = " + brightness);
+			System.out.println("(edge[0].z+edge[1].z) = " + (edge[0].z+edge[1].z));
+			g2.setColor(new Color(Color.HSBtoRGB(.1f, 1f, brightness)));
+			g2.drawLine(e0x, e0y, e1x, e1y);
 		}
 	}
 }
