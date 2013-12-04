@@ -54,7 +54,7 @@ public class Point3D {
 	}
 	private void projectOrthographic(){
 		//TODO, dummy code
-		projection = new Point2D.Double(0,0);
+		projection = new Point2D.Double(y,z);
 	}
 	private void projectPerspective(){
 		//TODO, dummy code
