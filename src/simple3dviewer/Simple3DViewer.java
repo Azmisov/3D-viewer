@@ -12,7 +12,7 @@ import javax.swing.JFrame;
  */
 public class Simple3DViewer extends JFrame{
 	private static final int winSize = 450;
-	private static final double rotateInc = .25;
+	private static final double rotateInc = .1;
 	
 	/**
 	 * Initialize GUI components

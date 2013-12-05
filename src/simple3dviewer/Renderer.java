@@ -26,7 +26,7 @@ public class Renderer extends JPanel{
 	//Initialize rendering settings
 	static{
 		pixelsPerUnit = 100;
-		line = new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+		line = new BasicStroke(15, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
 		antialiasing = new HashMap(){{
 			put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 			put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
