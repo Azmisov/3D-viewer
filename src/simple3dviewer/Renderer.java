@@ -26,7 +26,7 @@ public class Renderer extends JPanel{
 	//Initialize rendering settings
 	static{
 		pixelsPerUnit = 100;
-		line = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+		line = new BasicStroke(15, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
 		antialiasing = new HashMap(){{
 			put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 			put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -64,6 +64,7 @@ public class Renderer extends JPanel{
 	
 	@Override
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		
 		//Window dimensions
@@ -88,11 +89,9 @@ public class Renderer extends JPanel{
 			
 			//Unfortunately, Java2D can't do gradient lines, so we'll
 			//fake it by modifying the full line's brightness
-			float brightness = (float) (((edge[0].z + edge[1].z)/2.0 + 1)/2.0);
-			System.out.println("brightness = " + brightness);
-			System.out.println("(edge[0].z+edge[1].z) = " + (edge[0].z+edge[1].z));
-			g2.setColor(new Color(Color.HSBtoRGB(.1f, 1f, brightness)));
-                      // drawGradientLine(e0x,e0y,edge[0].z,e1x,e1y,edge[1].z,g2,4);
+			double max_dist = 1.5;
+			float brightness = (float) (((edge[0].z + edge[1].z)/2.0 + max_dist)/(max_dist*2.0));
+			g2.setColor(Color.getHSBColor(.8f, 1f, brightness));
 			g2.drawLine(e0x, e0y, e1x, e1y);
 		}
 	}
