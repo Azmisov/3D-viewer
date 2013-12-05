@@ -38,6 +38,29 @@ public class Renderer extends JPanel{
 		this.obj = obj;
 		repaint();
 	}
+        public void drawGradientLine(int x, int y, double z, int x1, int y1, double z1, Graphics2D g, int num)
+        {
+            if (num<=0)
+            {
+                float brightness = (float) (((z + z1)/4.0 + 1.)/2.0);
+                brightness=1-brightness;
+                if (brightness<0)
+                    brightness=0;
+                if (brightness>1)
+                    brightness=1;
+                System.out.println("brightness = " + brightness);
+                System.out.println("(z) = " + (z+z1));
+                //brightness=1;
+                //g.setColor(new Color(Color.HSBtoRGB(1f, 1f, brightness)));
+                g.setColor(new Color((int)(255*brightness),0,0));
+                g.drawLine(x, y, x1, y1);
+               return; 
+               
+            }
+            drawGradientLine(x,y,z,(x1+x)/2,(y1+y)/2, (z1+z)/2, g, num-1);
+            drawGradientLine(x1,y1,z1,(x1+x)/2,(y1+y)/2, (z1+z)/2, g, num-1);    
+            //drawGradientLine(e0x,e0y,edge[0].z,e1x,e1y,edge[1].z,g2,4);
+        }
 	
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -54,7 +77,8 @@ public class Renderer extends JPanel{
 		//First, perform depth sort on edges
 		obj.depthSort();
 		//Loop through all edges and draw lines
-		int e0x, e0y, e1x, e1y;		
+		int e0x, e0y, e1x, e1y;	
+                obj.rotate(Math.toRadians(10), Math.toRadians(10), Math.toRadians(10));
 		for (Point3D[] edge: obj.edges){
 			//Map the object coordinates to screen coordinates
 			e0x = (int) ((edge[0].projection.x * pixelsPerUnit) + winx);
@@ -68,6 +92,7 @@ public class Renderer extends JPanel{
 			System.out.println("brightness = " + brightness);
 			System.out.println("(edge[0].z+edge[1].z) = " + (edge[0].z+edge[1].z));
 			g2.setColor(new Color(Color.HSBtoRGB(.1f, 1f, brightness)));
+                      // drawGradientLine(e0x,e0y,edge[0].z,e1x,e1y,edge[1].z,g2,4);
 			g2.drawLine(e0x, e0y, e1x, e1y);
 		}
 	}
