@@ -21,6 +21,25 @@ public class Point3D {
 		project();
 	}
 	
+	public double[][] matrixMultiplication(double[][]transMatrix, double [][]pointInfo)
+        {
+            double numbers[][] = new double[transMatrix.length][pointInfo[0].length];
+            double sum;
+            for (int i = 0; i<pointInfo[0].length; i++)
+            {
+                for (int row =0; row<transMatrix.length; row++)
+                {
+                    sum=0;
+                    for (int col =0; col<transMatrix[0].length; col++)
+                    {
+                        sum+=transMatrix[row][col]*pointInfo[col][i];
+                    }
+                    numbers[row][i]=sum;
+                }
+            }
+            
+            return numbers;
+        }
 	//TRANSFORMATIONS
 	/**
 	 * Rotate points in 3D space; all angles are in radians
@@ -29,12 +48,55 @@ public class Point3D {
 	 * @param thetaZ z-axis rotation
 	 */
 	public void rotate(double thetaX, double thetaY, double thetaZ){
-		//TODO, perform rotation transformation
+	//I Believe this Method is Finished Now, Jared.	
+            //TODO, perform rotation transformation  
 		//This gets called by Object3D.rotate, so if you want
 		//you can change how this method works. Maybe you want to
 		//pass in a transformation matrix here, and generate the matrix
 		//once in Object3D
-		project();
+            //I'm 90% sure that this works, even if it isn't the most efficient -Jared
+            //double x = Math.toRadians(45);
+            double numbers[][];//Used to represent the rotated point
+            double point [][]= new double [2][1];
+            double transformMatrix[][] = new double[2][2];
+            //transformMatrix[][] = {{Math.cos(thetaX),-Math.sin(thetaX)},{Math.sin(thetaX),Math.cos(thetaX)}};
+            //Rotates around the X axis.
+            
+            transformMatrix[0][0]=Math.cos(thetaX);
+            transformMatrix[0][1]=-Math.sin(thetaX);
+            transformMatrix[1][0]=Math.sin(thetaX);
+            transformMatrix[1][1]=Math.cos(thetaX);
+            point[0][0] = y;
+            point[1][0] = z;
+            numbers=matrixMultiplication(transformMatrix, point);
+            this.y = numbers[0][0];
+            this.z = numbers[1][0];
+            
+            //Rotates around the Y axis.
+            transformMatrix[0][0]=Math.cos(thetaY);
+            transformMatrix[0][1]=-Math.sin(thetaY);
+            transformMatrix[1][0]=Math.sin(thetaY);
+            transformMatrix[1][1]=Math.cos(thetaY);
+            point[0][0] = x;
+            point[1][0] = z;
+            numbers=matrixMultiplication(transformMatrix, point);
+            this.x = numbers[0][0];
+            this.z = numbers[1][0];
+            
+            //Rotates around the Z axis.
+            transformMatrix[0][0]=Math.cos(thetaZ);
+            transformMatrix[0][1]=-Math.sin(thetaZ);
+            transformMatrix[1][0]=Math.sin(thetaZ);
+            transformMatrix[1][1]=Math.cos(thetaZ);
+            point[0][0] = x;
+            point[1][0] = y;
+            numbers=matrixMultiplication(transformMatrix, point);
+            this.x = numbers[0][0];
+            this.y = numbers[1][0];
+            
+
+            
+            project();
 	}
 	public void scale(double scale){
 		//TODO, perform scale transformation
