@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 public class Simple3DViewer extends JFrame{
 	private static final int winSize = 450;
 	private static final double rotateInc = .1;
+        private static final double shearInc = .1;
 	private static final Renderer viewer = new Renderer();
 	
 	/**
@@ -51,10 +52,31 @@ public class Simple3DViewer extends JFrame{
 					case KeyEvent.VK_RIGHT:
 						cube.rotate(0, rotateInc, 0);
 						break;
-                                        case KeyEvent.VK_1:
+                                        case KeyEvent.VK_Q:
+                                            if(e.isShiftDown())
+						cube.shear(-shearInc, 0, 0);
+                                            else
+                                                cube.shear(shearInc, 0, 0);
+						break;
+					case KeyEvent.VK_W:
+                                            if(e.isShiftDown())
+						cube.shear(0, -shearInc, 0);
+                                            else
+						cube.shear(0, shearInc, 0);
+						break;
+					case KeyEvent.VK_E:
+                                            if(e.isShiftDown())
+						cube.shear(0, 0, -shearInc);
+                                            else
+						cube.shear(0, 0, shearInc);
+						break;
+                                         case KeyEvent.VK_R:
+                                                cube.reset();
+                                                break;   
+                                        case KeyEvent.VK_MINUS:
                                                 cube.scale(1.2);
                                                 break;
-                                        case KeyEvent.VK_2:
+                                        case KeyEvent.VK_EQUALS:
                                                 cube.scale(.8);
                                                 break;
 					default: return;
