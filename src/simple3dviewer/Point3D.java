@@ -11,6 +11,7 @@ public class Point3D {
 		Perspective, Orthographic;
 	};
 	public static ProjectionMode mode = ProjectionMode.Perspective;
+	public static double cameraDistance = 8;
 	public double x, y, z;
 	public Point2D.Double projection;
 	
@@ -137,10 +138,11 @@ public class Point3D {
 	}
 	private void projectPerspective()
         {
-		//TODO, dummy code
-            double distance =8;
-           
-		projection = new Point2D.Double(x/(distance-z)*distance,y/(distance-z)*distance);
+		//TODO, dummy code           
+		projection = new Point2D.Double(
+			x/(cameraDistance-z)*cameraDistance,
+			y/(cameraDistance-z)*cameraDistance
+		);
 	}
 	
 	//OVERRIDES
