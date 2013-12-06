@@ -61,6 +61,7 @@ public class Simple3DViewer extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Point3D.mode = (Point3D.ProjectionMode) projectMode.getSelectedItem();
+				obj.project();
 				viewer.repaint();
 			}
 		});
@@ -123,6 +124,15 @@ public class Simple3DViewer extends JFrame{
 			}
 			@Override
 			public void mouseMoved(MouseEvent e) {}
+		});
+		viewer.addMouseWheelListener(new MouseWheelListener(){
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+                int notches = e.getWheelRotation();
+				obj.scale(-(1+notches/10.0));
+				viewer.repaint();
+			}
+
 		});
 		btns.add(transformMode);
 		

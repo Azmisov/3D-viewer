@@ -44,6 +44,10 @@ public class Object3D {
 	};
 	
 	//TRANSFORMATIONS
+	public void project(){
+		for (Point3D vertex: vertices)
+			vertex.project();
+	}
 	public void rotate(double thetaX, double thetaY, double thetaZ){
 		for (Point3D vertex: vertices)
 			vertex.rotate(thetaX, thetaY, thetaZ);
