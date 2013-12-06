@@ -44,7 +44,7 @@ public class Renderer extends JPanel{
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		
+		g.drawString("Use your mouse, including the wheel", 250, 400);
 		//Window dimensions
 		int winx = getWidth()/2, winy = getHeight()/2;
 		//Enable antialiasing
