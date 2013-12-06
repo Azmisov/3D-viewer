@@ -46,6 +46,12 @@ public class Simple3DViewer extends JFrame{
 					case KeyEvent.VK_RIGHT:
 						cube.rotate(0, rotateInc, 0);
 						break;
+                                        case KeyEvent.VK_1:
+                                                cube.scale(1.2);
+                                                break;
+                                        case KeyEvent.VK_2:
+                                                cube.scale(.8);
+                                                break;
 					default: return;
 				}
 				//Re-render the object

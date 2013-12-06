@@ -98,10 +98,17 @@ public class Point3D {
             
             project();
 	}
-	public void scale(double scale){
+	public void scale(double scale)
+        {
 		//TODO, perform scale transformation
 		//You can also modify Object3D.scale, since that
 		//is what calls this method
+            double transMatrix[][]={{scale,0,0},{0,scale,0},{0,0,scale}};
+            double XYZ [][]={{x},{y},{z}};
+            XYZ = matrixMultiplication(transMatrix,XYZ);
+            x = XYZ[0][0];
+            y= XYZ[1][0];
+            z=XYZ[2][0];
 		project();
 	}
 	

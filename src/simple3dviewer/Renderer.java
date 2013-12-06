@@ -42,8 +42,8 @@ public class Renderer extends JPanel{
         {
             if (num<=0)
             {
-                float brightness = (float) (((z + z1)/4.0 + 1.)/2.0);
-                brightness=1-brightness;
+                float brightness = (float) (((z + z1)/8.0 + 1.)/2.0);
+                brightness=brightness;
                 if (brightness<0)
                     brightness=0;
                 if (brightness>1)
@@ -79,7 +79,7 @@ public class Renderer extends JPanel{
 		obj.depthSort();
 		//Loop through all edges and draw lines
 		int e0x, e0y, e1x, e1y;	
-                obj.rotate(Math.toRadians(10), Math.toRadians(10), Math.toRadians(10));
+                //obj.rotate(Math.toRadians(10), Math.toRadians(10), Math.toRadians(10));
 		for (Point3D[] edge: obj.edges){
 			//Map the object coordinates to screen coordinates
 			e0x = (int) ((edge[0].projection.x * pixelsPerUnit) + winx);
@@ -93,6 +93,7 @@ public class Renderer extends JPanel{
 			float brightness = (float) (((edge[0].z + edge[1].z)/2.0 + max_dist)/(max_dist*2.0));
 			g2.setColor(Color.getHSBColor(.8f, 1f, brightness));
 			g2.drawLine(e0x, e0y, e1x, e1y);
+                        //drawGradientLine(e0x,e0y,edge[0].z,e1x,e1y,edge[1].z,g2,4);
 		}
 	}
 }
