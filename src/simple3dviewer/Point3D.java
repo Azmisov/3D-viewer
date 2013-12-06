@@ -8,17 +8,9 @@ import java.awt.geom.Point2D;
  */
 public class Point3D {
 	public static enum ProjectionMode{
-		PERSPECTIVE("Perspective"), ORTHOGRAPHIC("Orthographic");
-		public String name;
-		ProjectionMode(String name){
-			this.name = name;
-		}
-		@Override
-		public String toString(){
-			return name;
-		}
+		Perspective, Orthographic;
 	};
-	public static ProjectionMode mode = ProjectionMode.PERSPECTIVE;
+	public static ProjectionMode mode = ProjectionMode.Perspective;
 	public double x, y, z;
 	public Point2D.Double projection;
 	
@@ -136,8 +128,8 @@ public class Point3D {
 		//you may want to just do both types of projections
 		//in the same method, if they're similar enough...
 		switch (mode){
-			case ORTHOGRAPHIC: projectOrthographic(); break;
-			case PERSPECTIVE: projectPerspective(); break;
+			case Orthographic: projectOrthographic(); break;
+			case Perspective: projectPerspective(); break;
 		}
 	}
 	private void projectOrthographic(){

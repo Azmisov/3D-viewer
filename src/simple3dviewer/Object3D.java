@@ -59,16 +59,7 @@ public class Object3D {
 			vertex.shear(factorX, factorY, factorZ);
 		sorted = false;
 	}
-        public void reset()
-        {
-            for (Point3D vertex: vertices)
-            {
-                vertex.x = Math.abs(vertex.x)/vertex.x;
-                vertex.y = Math.abs(vertex.y)/vertex.y;
-                vertex.z = Math.abs(vertex.z)/vertex.z;
-            }
-		
-        }
+    
 	//PRIMITIVES
 	public static Object3D createCube(final int scale){
 		final Point3D

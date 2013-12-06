@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -21,20 +23,23 @@ import javax.swing.JPanel;
  */
 public class Simple3DViewer extends JFrame{
 	private static final int winSize = 500;
-	private static final double rotateInc = .01;
-	private static final Renderer viewer = new Renderer();;
+	private static final double transformInc = .01;
+	private static final double shearInc = .1;
+	private static final Renderer viewer = new Renderer();
+	private static enum TransformMode{
+		Rotate, Scale, ShearX, ShearY, ShearZ
+	}
+	private static TransformMode mode = TransformMode.Rotate;
 	private int mx, my;
+	private Object3D obj;
+	private AutoRotater rotate;
 	
 	/**
 	 * Initialize GUI components
 	 */
 	public Simple3DViewer(){		
 		//Initialize starting object
-		final Object3D cube = Object3D.createCube(1);
-		viewer.viewObject(cube);
-		
-		final AutoRotater rotate = new AutoRotater(cube);
-		(new Thread(rotate)).start();
+		reset();
 		
 		//Initialize GUI
 		setTitle("Simple 3D Viewer");
@@ -42,11 +47,12 @@ public class Simple3DViewer extends JFrame{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(new BorderLayout());
 		
+		//Projection Mode
 		JPanel btns = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 5));
-		btns.add(new JLabel("Projection: "));
+		btns.add(new JLabel("Project: "));
 		final JComboBox<Point3D.ProjectionMode> projectMode = new JComboBox(){{
-			addItem(Point3D.ProjectionMode.ORTHOGRAPHIC);
-			addItem(Point3D.ProjectionMode.PERSPECTIVE);
+			addItem(Point3D.ProjectionMode.Orthographic);
+			addItem(Point3D.ProjectionMode.Perspective);
 			setSelectedItem(Point3D.mode);
 		}};
 		projectMode.addActionListener(new ActionListener(){
@@ -57,43 +63,31 @@ public class Simple3DViewer extends JFrame{
 			}
 		});
 		btns.add(projectMode);
-		btns.add(new JLabel("  Scale: "));
-		JButton scaleUp = new JButton("+");
-		scaleUp.addActionListener(new ActionListener(){
+		
+		//Transform Mode
+		btns.add(new JLabel("  Transform: "));
+		final JComboBox<TransformMode> transformMode = new JComboBox(){{
+			for (TransformMode m: TransformMode.values())
+				addItem(m);
+			setSelectedItem(mode);
+		}};
+		transformMode.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cube.scale(1.2);
-				viewer.repaint();
+				mode = (TransformMode) transformMode.getSelectedItem();
 			}
 		});
-		btns.add(scaleUp);
-		JButton scaleDown = new JButton("-");
-		scaleDown.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cube.scale(.8);
-				viewer.repaint();
-			}
-		});
-		btns.add(scaleDown);		
-		
-		add(btns, BorderLayout.NORTH);
-		add(viewer, BorderLayout.CENTER);
-		
-		//Rotation controls
 		viewer.addMouseListener(new MouseListener(){
 			@Override
 			public void mousePressed(MouseEvent e) {
 				mx = e.getX();
 				my = e.getY();
-				rotate.manualControl(true);
+				rotate.manualControl();
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {}
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				rotate.manualControl(false);
-			}
+			public void mouseReleased(MouseEvent e) {}
 			@Override
 			public void mouseEntered(MouseEvent e) {}
 			@Override
@@ -101,8 +95,26 @@ public class Simple3DViewer extends JFrame{
 		});
 		viewer.addMouseMotionListener(new MouseMotionListener(){
 			@Override
-			public void mouseDragged(MouseEvent e) {
-				cube.rotate((my - e.getY())*rotateInc, (mx - e.getX())*rotateInc, 0);
+			public void mouseDragged(MouseEvent e){
+				double t1 = (my - e.getY())*transformInc,
+						t2 = (mx - e.getX())*transformInc;
+				switch (mode){
+					case Rotate:
+						obj.rotate(t1, t2, 0);
+						break;
+					case Scale:
+						obj.scale(t1+1);
+						break;
+					case ShearX:
+						obj.shear(t1, 0, 0);
+						break;
+					case ShearY:
+						obj.shear(0, t1, 0);
+						break;
+					case ShearZ:
+						obj.shear(0, 0, t1);
+						break;
+				}
 				mx = e.getX();
 				my = e.getY();
 				viewer.repaint();
@@ -110,6 +122,29 @@ public class Simple3DViewer extends JFrame{
 			@Override
 			public void mouseMoved(MouseEvent e) {}
 		});
+		btns.add(transformMode);
+		
+		//Reset button
+		JButton btnReset = new JButton("Reset");
+		btnReset.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				reset();
+			}
+		});
+		btns.add(btnReset);
+		
+		add(btns, BorderLayout.NORTH);
+		add(viewer, BorderLayout.CENTER);
+	}
+	
+	private void reset(){
+		obj = Object3D.createCube(1);
+		viewer.viewObject(obj);
+		viewer.repaint();
+		//Start auto-rotater
+		rotate = new AutoRotater(obj);
+		(new Thread(rotate)).start();
 	}
 	
 	private class AutoRotater implements Runnable{
@@ -121,7 +156,7 @@ public class Simple3DViewer extends JFrame{
 		}
 		@Override
 		public void run(){
-			while (true){
+			while (enabled){
 				obj.rotate(.03, .08, 0);
 				viewer.repaint();
 				try {
@@ -130,22 +165,10 @@ public class Simple3DViewer extends JFrame{
 					System.err.println("Could not sleep in thread");
 					enabled = false;
 				}
-				synchronized (this){
-					while (!enabled){
-						try {
-							this.wait();
-						} catch (InterruptedException ex) {
-							System.err.println("Cannot wait");
-						}
-					}
-				}
 			}
 		}
-		public void manualControl(boolean activate){
-			synchronized (this){
-				enabled = !activate;
-				this.notify();
-			}
+		public void manualControl(){
+			enabled = false;
 		}
 	}
 	
