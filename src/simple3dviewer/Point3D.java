@@ -119,6 +119,16 @@ public class Point3D {
             z=XYZ[2][0];
 		project();
 	}
+        public void shear(double factorX, double factorY, double factorZ)
+        {
+            double transMatrix[][]={{1,factorY,factorZ},{factorX,1,factorZ},{factorX,factorY,1}};
+            double XYZ [][]={{x},{y},{z}};
+            XYZ = matrixMultiplication(transMatrix,XYZ);
+            x = XYZ[0][0];
+            y= XYZ[1][0];
+            z=XYZ[2][0];
+            project();
+        }
 	
 	//PROJECTIONS
 	private void project(){
@@ -137,7 +147,7 @@ public class Point3D {
 	private void projectPerspective()
         {
 		//TODO, dummy code
-            double distance =4;
+            double distance =8;
            
 		projection = new Point2D.Double(x/(distance-z)*distance,y/(distance-z)*distance);
 	}
