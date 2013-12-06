@@ -7,10 +7,18 @@ import java.awt.geom.Point2D;
  * @author isaac, jared, mark, dallen
  */
 public class Point3D {
-	private static enum ProjectionMode{
-		PERSPECTIVE, ORTHOGRAPHIC
+	public static enum ProjectionMode{
+		PERSPECTIVE("Perspective"), ORTHOGRAPHIC("Orthographic");
+		public String name;
+		ProjectionMode(String name){
+			this.name = name;
+		}
+		@Override
+		public String toString(){
+			return name;
+		}
 	};
-	private static ProjectionMode mode = ProjectionMode.PERSPECTIVE;
+	public static ProjectionMode mode = ProjectionMode.PERSPECTIVE;
 	public double x, y, z;
 	public Point2D.Double projection;
 	

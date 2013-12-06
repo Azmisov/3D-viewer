@@ -1,32 +1,34 @@
 package simple3dviewer;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  * 3D object viewer
  * @author isaac
  */
 public class Simple3DViewer extends JFrame{
-	private static final int winSize = 450;
-	private static final double rotateInc = .1;
-	private static final Renderer viewer = new Renderer();
+	private static final int winSize = 500;
+	private static final double rotateInc = .01;
+	private static final Renderer viewer = new Renderer();;
+	private int mx, my;
 	
 	/**
 	 * Initialize GUI components
 	 */
-	public Simple3DViewer(){
-		setTitle("Simple 3D Viewer");
-		setSize(new Dimension(winSize, winSize));
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
-		add(viewer);
-		
+	public Simple3DViewer(){		
 		//Initialize starting object
 		final Object3D cube = Object3D.createCube(1);
 		viewer.viewObject(cube);
@@ -34,39 +36,79 @@ public class Simple3DViewer extends JFrame{
 		final AutoRotater rotate = new AutoRotater(cube);
 		(new Thread(rotate)).start();
 		
-		//Rotation controls
-		this.addKeyListener(new KeyListener(){
+		//Initialize GUI
+		setTitle("Simple 3D Viewer");
+		setSize(new Dimension(winSize, winSize));
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+		
+		JPanel btns = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 5));
+		btns.add(new JLabel("Projection: "));
+		final JComboBox<Point3D.ProjectionMode> projectMode = new JComboBox(){{
+			addItem(Point3D.ProjectionMode.ORTHOGRAPHIC);
+			addItem(Point3D.ProjectionMode.PERSPECTIVE);
+			setSelectedItem(Point3D.mode);
+		}};
+		projectMode.addActionListener(new ActionListener(){
 			@Override
-			public void keyPressed(KeyEvent e) {
-				switch (e.getKeyCode()){
-					case KeyEvent.VK_UP:
-						cube.rotate(-rotateInc, 0, 0);
-						break;
-					case KeyEvent.VK_DOWN:
-						cube.rotate(rotateInc, 0, 0);
-						break;
-					case KeyEvent.VK_LEFT:
-						cube.rotate(0, -rotateInc, 0);
-						break;
-					case KeyEvent.VK_RIGHT:
-						cube.rotate(0, rotateInc, 0);
-						break;
-                                        case KeyEvent.VK_1:
-                                                cube.scale(1.2);
-                                                break;
-                                        case KeyEvent.VK_2:
-                                                cube.scale(.8);
-                                                break;
-					default: return;
-				}
-				//Re-render the object
-				rotate.switchToManual();
+			public void actionPerformed(ActionEvent e) {
+				Point3D.mode = (Point3D.ProjectionMode) projectMode.getSelectedItem();
+				viewer.repaint();
+			}
+		});
+		btns.add(projectMode);
+		btns.add(new JLabel("  Scale: "));
+		JButton scaleUp = new JButton("+");
+		scaleUp.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cube.scale(1.2);
+				viewer.repaint();
+			}
+		});
+		btns.add(scaleUp);
+		JButton scaleDown = new JButton("-");
+		scaleDown.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cube.scale(.8);
+				viewer.repaint();
+			}
+		});
+		btns.add(scaleDown);		
+		
+		add(btns, BorderLayout.NORTH);
+		add(viewer, BorderLayout.CENTER);
+		
+		//Rotation controls
+		viewer.addMouseListener(new MouseListener(){
+			@Override
+			public void mousePressed(MouseEvent e) {
+				mx = e.getX();
+				my = e.getY();
+				rotate.manualControl(true);
+			}
+			@Override
+			public void mouseClicked(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				rotate.manualControl(false);
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+		});
+		viewer.addMouseMotionListener(new MouseMotionListener(){
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				cube.rotate((my - e.getY())*rotateInc, (mx - e.getX())*rotateInc, 0);
+				mx = e.getX();
+				my = e.getY();
 				viewer.repaint();
 			}
 			@Override
-			public void keyTyped(KeyEvent e) {}
-			@Override
-			public void keyReleased(KeyEvent e) {}
+			public void mouseMoved(MouseEvent e) {}
 		});
 	}
 	
@@ -79,8 +121,8 @@ public class Simple3DViewer extends JFrame{
 		}
 		@Override
 		public void run(){
-			while (enabled){
-				obj.rotate(.05, .1, 0);
+			while (true){
+				obj.rotate(.03, .08, 0);
 				viewer.repaint();
 				try {
 					Thread.sleep(80);
@@ -88,10 +130,22 @@ public class Simple3DViewer extends JFrame{
 					System.err.println("Could not sleep in thread");
 					enabled = false;
 				}
+				synchronized (this){
+					while (!enabled){
+						try {
+							this.wait();
+						} catch (InterruptedException ex) {
+							System.err.println("Cannot wait");
+						}
+					}
+				}
 			}
 		}
-		public void switchToManual(){
-			enabled = false;
+		public void manualControl(boolean activate){
+			synchronized (this){
+				enabled = !activate;
+				this.notify();
+			}
 		}
 	}
 	
