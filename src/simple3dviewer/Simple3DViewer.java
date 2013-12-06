@@ -29,7 +29,7 @@ public class Simple3DViewer extends JFrame{
 	private static final double shearInc = .1;
 	private static final Renderer viewer = new Renderer();
 	private static enum TransformMode{
-		Rotate, Scale, ShearX, ShearY, ShearZ, Perspective
+		Rotate, Scale, Shear, Perspective
 	}
 	private static TransformMode mode = TransformMode.Rotate;
 	private int mx, my;
@@ -108,14 +108,8 @@ public class Simple3DViewer extends JFrame{
 					case Scale:
 						obj.scale(t1+1);
 						break;
-					case ShearX:
-						obj.shear(t1, 0, 0);
-						break;
-					case ShearY:
-						obj.shear(0, t1, 0);
-						break;
-					case ShearZ:
-						obj.shear(0, 0, t1);
+					case Shear:
+						obj.shear(t1, t2, 0);
 						break;
 					case Perspective:
 						Point3D.cameraDistance += t1*1.5;
@@ -155,6 +149,7 @@ public class Simple3DViewer extends JFrame{
 	}
 	
 	private void reset(){
+		Point3D.cameraDistance = 8;
 		obj = Object3D.createCube(1);
 		viewer.viewObject(obj);
 		viewer.repaint();
