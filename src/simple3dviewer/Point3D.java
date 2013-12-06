@@ -10,7 +10,7 @@ public class Point3D {
 	private static enum ProjectionMode{
 		PERSPECTIVE, ORTHOGRAPHIC
 	};
-	private static ProjectionMode mode = ProjectionMode.ORTHOGRAPHIC;
+	private static ProjectionMode mode = ProjectionMode.PERSPECTIVE;
 	public double x, y, z;
 	public Point2D.Double projection;
 	
@@ -126,9 +126,12 @@ public class Point3D {
 		//TODO, dummy code
 		projection = new Point2D.Double(x,y);
 	}
-	private void projectPerspective(){
+	private void projectPerspective()
+        {
 		//TODO, dummy code
-		projection = new Point2D.Double(0,0);
+            double distance =4;
+           
+		projection = new Point2D.Double(x/(distance-z)*distance,y/(distance-z)*distance);
 	}
 	
 	//OVERRIDES
