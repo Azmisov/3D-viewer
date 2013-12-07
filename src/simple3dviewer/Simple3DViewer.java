@@ -4,27 +4,31 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import simple3dviewer.Object3D.Primitives;
+import simple3dviewer.Point3D.ProjectionMode;
 
 /**
  * 3D object viewer
  * @author isaac
  */
 public class Simple3DViewer extends JFrame{
-	private static final int winSize = 500;
+	private static final int winX = 590, winY = 500;
 	private static final double transformInc = .01;
 	private static final double shearInc = .1;
 	private static final Renderer viewer = new Renderer();
@@ -32,6 +36,7 @@ public class Simple3DViewer extends JFrame{
 		Rotate, Scale, Shear, Perspective
 	}
 	private static TransformMode mode = TransformMode.Rotate;
+	private static Primitives objMode = Primitives.Cube;
 	private int mx, my;
 	private Object3D obj;
 	private AutoRotater rotate;
@@ -45,16 +50,19 @@ public class Simple3DViewer extends JFrame{
 		
 		//Initialize GUI
 		setTitle("Simple 3D Viewer");
-		setSize(new Dimension(winSize, winSize));
+		setSize(new Dimension(winX, winY));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(new BorderLayout());
+		setLocationRelativeTo(null);
+		
+		//Controls
+		JPanel btns = new JPanel();
+		btns.setLayout(new FlowLayout(FlowLayout.CENTER, 13, 5));
 		
 		//Projection Mode
-		JPanel btns = new JPanel(new FlowLayout(FlowLayout.CENTER, 3, 5));
-		btns.add(new JLabel("Project: "));
 		final JComboBox<Point3D.ProjectionMode> projectMode = new JComboBox(){{
-			addItem(Point3D.ProjectionMode.Orthographic);
-			addItem(Point3D.ProjectionMode.Perspective);
+			for (ProjectionMode m: ProjectionMode.values())
+				addItem(m);
 			setSelectedItem(Point3D.mode);
 		}};
 		projectMode.addActionListener(new ActionListener(){
@@ -65,10 +73,8 @@ public class Simple3DViewer extends JFrame{
 				viewer.repaint();
 			}
 		});
-		btns.add(projectMode);
 		
 		//Transform Mode
-		btns.add(new JLabel("  Transform: "));
 		final JComboBox<TransformMode> transformMode = new JComboBox(){{
 			for (TransformMode m: TransformMode.values())
 				addItem(m);
@@ -127,12 +133,25 @@ public class Simple3DViewer extends JFrame{
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
                 int notches = e.getWheelRotation();
-				obj.scale(-(1+notches/10.0));
+				obj.scale(1-notches/10.0);
 				viewer.repaint();
 			}
 
 		});
-		btns.add(transformMode);
+		
+		//Object Mode
+		final JComboBox<Point3D.ProjectionMode> objectMode = new JComboBox(){{
+			for (Primitives m: Primitives.values())
+				addItem(m);
+			setSelectedItem(objMode);
+		}};
+		objectMode.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				objMode = (Primitives) objectMode.getSelectedItem();
+				reset();
+			}
+		});
 		
 		//Reset button
 		JButton btnReset = new JButton("Reset");
@@ -142,15 +161,44 @@ public class Simple3DViewer extends JFrame{
 				reset();
 			}
 		});
-		btns.add(btnReset);
 		
-		add(btns, BorderLayout.NORTH);
+		//Layout components in grid
+		JPanel box = new JPanel();
+		box.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.ipadx = 3;		c.ipady = 3;
+		c.gridwidth = 1;	c.gridheight = 1;
+		c.gridx = 0;		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(0, 0, 0, 0);
+		box.add(new JLabel("Projection:"), c);
+		c.insets.top = 0;
+		c.gridy++;
+		box.add(projectMode, c);
+		c.insets.top = 20;
+		c.gridy++;
+		box.add(new JLabel("Transformation:"), c);
+		c.insets.top = 0;
+		c.gridy++;
+		box.add(transformMode, c);
+		c.insets.top = 20;
+		c.gridy++;
+		box.add(new JLabel("Object:"), c);
+		c.insets.top = 0;
+		c.gridy++;
+		box.add(objectMode, c);
+		c.insets.top = 20;
+		c.gridy++;
+		box.add(btnReset, c);
+		
+		btns.add(box);
+		add(btns, BorderLayout.WEST);
 		add(viewer, BorderLayout.CENTER);
 	}
 	
 	private void reset(){
 		Point3D.cameraDistance = 8;
-		obj = Object3D.createCube(1);
+		obj = objMode.create(1);
 		viewer.viewObject(obj);
 		viewer.repaint();
 		//Start auto-rotater
@@ -161,6 +209,7 @@ public class Simple3DViewer extends JFrame{
 	private class AutoRotater implements Runnable{
 		public boolean enabled = true;
 		public Object3D obj;
+		private double period = 0;
 		
 		public AutoRotater(Object3D obj){
 			this.obj = obj;
@@ -168,7 +217,9 @@ public class Simple3DViewer extends JFrame{
 		@Override
 		public void run(){
 			while (enabled){
-				obj.rotate(.03, .08, 0);
+				period += .05;
+				double top = Math.sin(period)*.03;
+				obj.rotate(top, .08, 0);
 				viewer.repaint();
 				try {
 					Thread.sleep(80);

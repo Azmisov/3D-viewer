@@ -44,7 +44,7 @@ public class Renderer extends JPanel{
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		g.drawString("Use your mouse, including the wheel", 250, 400);
+		g.drawString("Use your mouse, including the wheel", 80, 20);
 		//Window dimensions
 		int winx = getWidth()/2, winy = getHeight()/2;
 		//Enable antialiasing
@@ -88,6 +88,6 @@ public class Renderer extends JPanel{
 			brightness = 0;
 		else if (brightness > 1)
 			brightness = 1;
-		return Color.getHSBColor(.8f, 1f, brightness);
+		return Color.getHSBColor(.6f, 1f, brightness);
 	}
 }

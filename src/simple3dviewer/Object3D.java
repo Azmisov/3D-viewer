@@ -65,37 +65,72 @@ public class Object3D {
 	}
     
 	//PRIMITIVES
-	public static Object3D createCube(final int scale){
-		final Point3D
-			//Top face
-			t1 = new Point3D(1, 1, 1),
-			t2 = new Point3D(1, -1, 1),
-			t3 = new Point3D(-1, 1, 1),
-			t4 = new Point3D(-1, -1, 1),
-			//Bottom face
-			b5 = new Point3D(1, 1, -1),
-			b6 = new Point3D(1, -1, -1),
-			b7 = new Point3D(-1, 1, -1),
-			b8 = new Point3D(-1, -1, -1);
-		return new Object3D(){{
-			//Top face
-			addEdge(t1, t2);
-			addEdge(t1, t3);
-			addEdge(t4, t2);
-			addEdge(t4, t3);
-			//Bottom face
-			addEdge(b5, b6);
-			addEdge(b5, b7);
-			addEdge(b8, b6);
-			addEdge(b8, b7);
-			//Conjoining faces
-			addEdge(t1, b5);
-			addEdge(t2, b6);
-			addEdge(t3, b7);
-			addEdge(t4, b8);
-			//Scale
-			if (scale != 1)
-				scale(scale);
-		}};
+	public static enum Primitives{
+		Cube{
+			@Override
+			public Object3D create(final int scale){
+				final Point3D
+					//Top face
+					t1 = new Point3D(1, 1, 1),
+					t2 = new Point3D(1, -1, 1),
+					t3 = new Point3D(-1, 1, 1),
+					t4 = new Point3D(-1, -1, 1),
+					//Bottom face
+					b5 = new Point3D(1, 1, -1),
+					b6 = new Point3D(1, -1, -1),
+					b7 = new Point3D(-1, 1, -1),
+					b8 = new Point3D(-1, -1, -1);
+				return new Object3D(){{
+					//Top face
+					addEdge(t1, t2);
+					addEdge(t1, t3);
+					addEdge(t4, t2);
+					addEdge(t4, t3);
+					//Bottom face
+					addEdge(b5, b6);
+					addEdge(b5, b7);
+					addEdge(b8, b6);
+					addEdge(b8, b7);
+					//Conjoining faces
+					addEdge(t1, b5);
+					addEdge(t2, b6);
+					addEdge(t3, b7);
+					addEdge(t4, b8);
+					//Scale
+					if (scale != 1)
+						scale(scale);
+				}};
+			}
+		},
+		Pyramid{
+			@Override
+			public Object3D create(final int scale){
+				final Point3D
+					//Top corner
+					t1 = new Point3D(0, -1, 0),
+					//Bottom face
+					b5 = new Point3D(1, 1, 1),
+					b6 = new Point3D(1, 1, -1),
+					b7 = new Point3D(-1, 1, 1),
+					b8 = new Point3D(-1, 1, -1);
+				return new Object3D(){{
+					//Bottom face
+					addEdge(b5, b6);
+					addEdge(b5, b7);
+					addEdge(b8, b6);
+					addEdge(b8, b7);
+					//Conjoining edges
+					addEdge(t1, b5);
+					addEdge(t1, b6);
+					addEdge(t1, b7);
+					addEdge(t1, b8);
+					//Scale
+					if (scale != 1)
+						scale(scale);
+				}};
+			}			
+		};
+		
+		public abstract Object3D create(final int scale);
 	}
 }
